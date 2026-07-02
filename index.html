@@ -56,6 +56,9 @@ button {
 
 let scanner;
 
+// 🔴 PUT YOUR APPS SCRIPT /exec URL HERE
+const API_URL = "18xsejVkNxHqoyhs0fWEEpr9ZJ4BdZhK6zO5QT-GtOOs";
+
 function startScan() {
 
   const result = document.getElementById("result");
@@ -71,24 +74,37 @@ function startScan() {
     }
 
     const cameraId =
-      devices.find(d => d.label.toLowerCase().includes("back"))?.id
-      || devices[0].id;
+      devices.find(d => d.label && d.label.toLowerCase().includes("back"))
+      ?.id || devices[0].id;
 
     scanner.start(
       cameraId,
       { fps: 10, qrbox: 250 },
-      (decodedText) => {
+      async (decodedText) => {
 
         result.innerHTML = "Scanned: " + decodedText;
 
-        scanner.stop();
+        await scanner.stop();
+
+        try {
+
+          const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
+          const data = await res.json();
+
+          if (data.found) {
+            result.innerHTML = "FOUND ✔ " + decodedText;
+          } else {
+            result.innerHTML = "NOT FOUND ❌";
+          }
+
+        } catch (err) {
+          console.error(err);
+          result.innerHTML = "ERROR CONNECTING TO SHEET ❌";
+        }
 
       }
     );
 
-  }).catch(err => {
-    result.innerHTML = "Camera error: " + err;
-    console.error(err);
   });
 
 }
