@@ -82,21 +82,21 @@ function startScan() {
       { fps: 10, qrbox: 250 },
       async (decodedText) => {
 
-        const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
-const data = await res.json();
+  const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
+  const data = await res.json();
 
-if (data.found) {
-  result.innerHTML =
-    "FOUND ✔<br>" +
-    "Barcode: " + decodedText + "<br>" +
-    "Column J: " + data.colJ + "<br>" +
-    "Column O: " + data.colO;
-} else {
-  result.innerHTML = "NOT FOUND ❌";
+  if (data.found) {
+    result.innerHTML =
+      "FOUND ✔<br>" +
+      "Barcode: " + decodedText + "<br>" +
+      "Column J: " + data.colJ + "<br>" +
+      "Column O: " + data.colO;
+  } else {
+    result.innerHTML = "NOT FOUND ❌";
+  }
+
 }
-
-      }
-    );
+);
 
   });
 
