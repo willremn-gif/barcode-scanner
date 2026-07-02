@@ -62,7 +62,7 @@ button:disabled {
 let scanner = null;
 let isScanning = false;
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzDKvTIkbBs6i_jc2vshcR3kc9zTLkywJA_PCNyLc83iaTKYUPAXed7eFKrkQ2xT1Yq/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyQtg8VfJCPZdH3QKaP-1m13Ye9iY0dwsF4j0sEuQ2wKZqQlYp3nAS9IpeXoK5cvPnM/exec";
 
 async function startScan() {
 
@@ -125,21 +125,37 @@ async function startScan() {
 
                     const data = await res.json();
 
-                    if (data.duplicate) {
+if (data.duplicate) {
 
-                        result.innerHTML =
-                            "⚠ ALREADY SCANNED<br><br>" +
-                            "<b>Barcode:</b> " + decodedText + "<br>" +
-                            "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
-                            "<b>Status:</b> " + (data.colO || "-");
+    result.innerHTML =
+        "⚠ ALREADY SCANNED<br><br>" +
+        "<b>Barcode:</b> " + decodedText + "<br>" +
+        "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
+        "<b>Status:</b> " + (data.colO || "-");
 
-                    } else {
+} else if (data.found && data.saved) {
 
-                        result.innerHTML =
-                            "❌ NOT FOUND<br><br>" +
-                            "<b>Barcode:</b> " + decodedText;
+    result.innerHTML =
+        "✅ SCANNED SUCCESSFULLY<br><br>" +
+        "<b>Barcode:</b> " + decodedText + "<br>" +
+        "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
+        "<b>Status:</b> " + (data.colO || "-");
 
-                    }
+} else if (data.found) {
+
+    result.innerHTML =
+        "✅ FOUND<br><br>" +
+        "<b>Barcode:</b> " + decodedText + "<br>" +
+        "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
+        "<b>Status:</b> " + (data.colO || "-");
+
+} else {
+
+    result.innerHTML =
+        "❌ NOT FOUND<br><br>" +
+        "<b>Barcode:</b> " + decodedText;
+
+}
 
                 } catch (err) {
 
