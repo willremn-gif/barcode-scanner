@@ -57,7 +57,7 @@ button {
 let scanner;
 
 // 🔴 PUT YOUR APPS SCRIPT /exec URL HERE
-const API_URL = "https://script.google.com/macros/s/AKfycbyAdG8b8JDLzQ2kqIQGavOcANoIa8rnEXUhxJk9zB8Hcr3GvJIeD_AAGddJFVkH6bCo/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzFTzeesBFEdLDmMd4AZYP6Pb_SKkTJXpWLRQBve2iilNCaz3lShXKvOYU5UsozM2yu/exec";
 
 function startScan() {
 
@@ -89,8 +89,8 @@ function startScan() {
     result.innerHTML =
       "FOUND ✔<br>" +
       "Barcode: " + decodedText + "<br>" +
-      "Column J: " + data.colJ + "<br>" +
-      "Column O: " + data.colO;
+      "" + data.colJ + "<br>" +
+      "" + data.colO;
   } else {
     result.innerHTML = "NOT FOUND ❌";
   }
