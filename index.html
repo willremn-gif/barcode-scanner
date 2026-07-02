@@ -130,16 +130,16 @@ if (data.duplicate) {
     result.innerHTML =
         "⚠ ALREADY SCANNED<br><br>" +
         "<b>Barcode:</b> " + decodedText + "<br>" +
-        "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
-        "<b>Status:</b> " + (data.colO || "-");
+        "<b>Lens type:</b> " + (data.colJ || "-") + "<br>" +
+        "<b>Grade:</b> " + (data.colO || "-");
 
 } else if (data.found && data.saved) {
 
     result.innerHTML =
         "✅ SCANNED SUCCESSFULLY<br><br>" +
         "<b>Barcode:</b> " + decodedText + "<br>" +
-        "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
-        "<b>Status:</b> " + (data.colO || "-");
+        "<b>Lens type:</b> " + (data.colJ || "-") + "<br>" +
+        "<b>Grade:</b> " + (data.colO || "-");
 
 } else if (data.found) {
 
@@ -147,7 +147,7 @@ if (data.duplicate) {
         "✅ FOUND<br><br>" +
         "<b>Barcode:</b> " + decodedText + "<br>" +
         "<b>Lens type:</b> " + (data.colJ || "-") + "<br>" +
-        "<b>Power:</b> " + (data.colO || "-");
+        "<b>Grade:</b> " + (data.colO || "-");
 
 } else {
 
