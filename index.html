@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  padding: 15px;
+  background: #f4f6f8;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+#reader {
+  width: 100%;
+  max-width: 350px;
+  margin: auto;
+}
+
+button {
+  padding: 14px;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 90%;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>WORKING BARCODE SCANNER</h2>
+
+<div id="reader"></div>
+
+<button onclick="startScan()">START SCAN</button>
+
+<p id="result">Ready</p>
+
+<script>
+
+let scanner;
+
+function startScan() {
+
+  const result = document.getElementById("result");
+  result.innerHTML = "Starting camera...";
+
+  scanner = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(devices => {
+
+    if (!devices || devices.length === 0) {
+      result.innerHTML = "No camera found ❌";
+      return;
+    }
+
+    const cameraId =
+      devices.find(d => d.label.toLowerCase().includes("back"))?.id
+      || devices[0].id;
+
+    scanner.start(
+      cameraId,
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+
+        result.innerHTML = "Scanned: " + decodedText;
+
+        scanner.stop();
+
+      }
+    );
+
+  }).catch(err => {
+    result.innerHTML = "Camera error: " + err;
+    console.error(err);
+  });
+
+}
+
+</script>
+
+</body>
+</html>
