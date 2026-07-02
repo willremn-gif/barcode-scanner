@@ -80,22 +80,43 @@ function startScan() {
     scanner.start(
       cameraId,
       { fps: 10, qrbox: 250 },
-      async (decodedText) => {
+      let isScanning = false;
 
-  const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
-  const data = await res.json();
+async (decodedText) => {
 
-  if (data.found) {
-    result.innerHTML =
-      "FOUND ✔<br>" +
-      "Barcode: " + decodedText + "<br>" +
-      "" + data.colJ + "<br>" +
-      "" + data.colO;
-  } else {
-    result.innerHTML = "NOT FOUND ❌";
+  if (isScanning) return;
+  isScanning = true;
+
+  result.innerHTML = "Processing...";
+
+  try {
+
+    await scanner.stop(); // 🔴 STOP CAMERA IMMEDIATELY
+
+    const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
+    const data = await res.json();
+
+    if (data.found) {
+      result.innerHTML =
+        "FOUND ✔<br>" +
+        "Barcode: " + decodedText + "<br>" +
+        "" + data.colJ + "<br>" +
+        "" + data.colO;
+    } else {
+      result.innerHTML = "NOT FOUND ❌";
+    }
+
+  } catch (err) {
+    console.error(err);
+    result.innerHTML = "ERROR ❌";
   }
 
+  setTimeout(() => {
+    isScanning = false;
+  }, 3000);
+
 }
+  
 );
 
   });
