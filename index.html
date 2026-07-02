@@ -96,13 +96,13 @@ function startScan() {
           const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
           const data = await res.json();
 
-          if (data.found) {
-            result.innerHTML =
-              "FOUND ✔<br>" +
-              "Barcode: " + decodedText + "<br>" +
-              "" + data.colJ + "<br>" +
-              "" + data.colO;
-          } else {
+       if (data.duplicate) {
+  result.innerHTML =
+    "⚠ ALREADY SCANNED<br>" +
+    "Barcode: " + decodedText + "<br>" +
+    "" + (data.colJ || "-") + "<br>" +
+    "" + (data.colO || "-");
+} else {
             result.innerHTML = "NOT FOUND ❌";
           }
 
