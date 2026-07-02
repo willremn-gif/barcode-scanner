@@ -55,8 +55,8 @@ button {
 <script>
 
 let scanner;
+let isScanning = false;
 
-// 🔴 PUT YOUR APPS SCRIPT /exec URL HERE
 const API_URL = "https://script.google.com/macros/s/AKfycbzFTzeesBFEdLDmMd4AZYP6Pb_SKkTJXpWLRQBve2iilNCaz3lShXKvOYU5UsozM2yu/exec";
 
 function startScan() {
@@ -80,49 +80,49 @@ function startScan() {
     scanner.start(
       cameraId,
       { fps: 10, qrbox: 250 },
-      let isScanning = false;
 
-async (decodedText) => {
+      async (decodedText) => {
 
-  if (isScanning) return;
-  isScanning = true;
+        // 🔴 BLOCK MULTIPLE SCANS
+        if (isScanning) return;
+        isScanning = true;
 
-  result.innerHTML = "Processing...";
+        result.innerHTML = "Processing...";
 
-  try {
+        try {
 
-    await scanner.stop(); // 🔴 STOP CAMERA IMMEDIATELY
+          await scanner.stop(); // STOP CAMERA ONCE
 
-    const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
-    const data = await res.json();
+          const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
+          const data = await res.json();
 
-    if (data.found) {
-      result.innerHTML =
-        "FOUND ✔<br>" +
-        "Barcode: " + decodedText + "<br>" +
-        "" + data.colJ + "<br>" +
-        "" + data.colO;
-    } else {
-      result.innerHTML = "NOT FOUND ❌";
-    }
+          if (data.found) {
+            result.innerHTML =
+              "FOUND ✔<br>" +
+              "Barcode: " + decodedText + "<br>" +
+              "" + data.colJ + "<br>" +
+              "" + data.colO;
+          } else {
+            result.innerHTML = "NOT FOUND ❌";
+          }
 
-  } catch (err) {
-    console.error(err);
-    result.innerHTML = "ERROR ❌";
-  }
+        } catch (err) {
+          console.error(err);
+          result.innerHTML = "ERROR ❌";
+        }
 
-  setTimeout(() => {
-    isScanning = false;
-  }, 3000);
+        // reset after delay
+        setTimeout(() => {
+          isScanning = false;
+        }, 3000);
 
-}
-  
-);
+      }
+
+    );
 
   });
 
 }
-
 </script>
 
 </body>
