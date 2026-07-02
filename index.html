@@ -82,25 +82,18 @@ function startScan() {
       { fps: 10, qrbox: 250 },
       async (decodedText) => {
 
-        result.innerHTML = "Scanned: " + decodedText;
+        const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
+const data = await res.json();
 
-        await scanner.stop();
-
-        try {
-
-          const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
-          const data = await res.json();
-
-          if (data.found) {
-            result.innerHTML = "FOUND ✔ " + decodedText;
-          } else {
-            result.innerHTML = "NOT FOUND ❌";
-          }
-
-        } catch (err) {
-          console.error(err);
-          result.innerHTML = "ERROR CONNECTING TO SHEET ❌";
-        }
+if (data.found) {
+  result.innerHTML =
+    "FOUND ✔<br>" +
+    "Barcode: " + decodedText + "<br>" +
+    "Column J: " + data.colJ + "<br>" +
+    "Column O: " + data.colO;
+} else {
+  result.innerHTML = "NOT FOUND ❌";
+}
 
       }
     );
