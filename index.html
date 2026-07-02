@@ -128,7 +128,7 @@ async function startScan() {
 if (data.duplicate) {
 
     result.innerHTML =
-        "⚠ ALREADY SCANNED<br><br>" +
+        "<span style='color:red;font-size:24px;font-weight:bold;'>⚠ ALREADY SCANNED</span><br><br>" +
         "<b>Barcode:</b> " + decodedText + "<br>" +
         "<b>Lens type:</b> " + (data.colJ || "-") + "<br>" +
         "<b>Grade:</b> " + (data.colO || "-");
