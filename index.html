@@ -7,39 +7,44 @@
 
 <style>
 body {
-  font-family: Arial;
-  text-align: center;
-  padding: 15px;
-  background: #f4f6f8;
+    font-family: Arial;
+    text-align: center;
+    padding: 15px;
+    background: #f4f6f8;
 }
 
 h2 {
-  font-size: 22px;
+    font-size: 22px;
 }
 
 #reader {
-  width: 100%;
-  max-width: 350px;
-  margin: auto;
+    width: 100%;
+    max-width: 350px;
+    margin: auto;
 }
 
 button {
-  padding: 14px;
-  font-size: 16px;
-  margin-top: 10px;
-  width: 90%;
-  background: #1976d2;
-  color: white;
-  border: none;
-  border-radius: 8px;
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 10px;
+    width: 90%;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+}
+
+button:disabled {
+    background: gray;
 }
 
 #result {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: bold;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
 }
 </style>
+
 </head>
 
 <body>
@@ -48,81 +53,124 @@ button {
 
 <div id="reader"></div>
 
-<button onclick="startScan()">START SCAN</button>
+<button id="scanBtn" onclick="startScan()">START SCAN</button>
 
 <p id="result">Ready</p>
 
 <script>
 
-let scanner;
+let scanner = null;
 let isScanning = false;
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwLKeCMmKaWSsMS-VnhAatOJ331TVN5xCIlQNg0CC2sUVQVrrGLK22pHy-CcSoaWdWV/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzDKvTIkbBs6i_jc2vshcR3kc9zTLkywJA_PCNyLc83iaTKYUPAXed7eFKrkQ2xT1Yq/exec";
 
-function startScan() {
+async function startScan() {
 
-  const result = document.getElementById("result");
-  result.innerHTML = "Starting camera...";
+    const result = document.getElementById("result");
+    const btn = document.getElementById("scanBtn");
 
-  scanner = new Html5Qrcode("reader");
-
-  Html5Qrcode.getCameras().then(devices => {
-
-    if (!devices || devices.length === 0) {
-      result.innerHTML = "No camera found ❌";
-      return;
+    if (scanner) {
+        result.innerHTML = "Scanner is already running...";
+        return;
     }
 
-    const cameraId =
-      devices.find(d => d.label && d.label.toLowerCase().includes("back"))
-      ?.id || devices[0].id;
+    btn.disabled = true;
+    result.innerHTML = "Starting camera...";
 
-    scanner.start(
-      cameraId,
-      { fps: 10, qrbox: 250 },
+    try {
 
-      async (decodedText) => {
+        const devices = await Html5Qrcode.getCameras();
 
-        // 🔴 BLOCK MULTIPLE SCANS
-        if (isScanning) return;
-        isScanning = true;
-
-        result.innerHTML = "Processing...";
-
-        try {
-
-          await scanner.stop(); // STOP CAMERA ONCE
-
-          const res = await fetch(API_URL + "?barcode=" + encodeURIComponent(decodedText));
-          const data = await res.json();
-
-       if (data.duplicate) {
-  result.innerHTML =
-    "⚠ ALREADY SCANNED<br>" +
-    "Barcode: " + decodedText + "<br>" +
-    "" + (data.colJ || "-") + "<br>" +
-    "" + (data.colO || "-");
-} else {
-            result.innerHTML = "NOT FOUND ❌";
-          }
-
-        } catch (err) {
-          console.error(err);
-          result.innerHTML = "ERROR ❌";
+        if (!devices.length) {
+            result.innerHTML = "No camera found ❌";
+            btn.disabled = false;
+            return;
         }
 
-        // reset after delay
-        setTimeout(() => {
-          isScanning = false;
-        }, 3000);
+        const cameraId =
+            devices.find(d =>
+                d.label &&
+                d.label.toLowerCase().includes("back")
+            )?.id || devices[0].id;
 
-      }
+        scanner = new Html5Qrcode("reader");
 
-    );
+        await scanner.start(
+            cameraId,
+            {
+                fps: 10,
+                qrbox: 250
+            },
 
-  });
+            async (decodedText) => {
+
+                if (isScanning) return;
+                isScanning = true;
+
+                result.innerHTML = "Processing...";
+
+                try {
+
+                    await scanner.stop();
+                    await scanner.clear();
+                    scanner = null;
+
+                    const res = await fetch(
+                        API_URL + "?barcode=" + encodeURIComponent(decodedText)
+                    );
+
+                    if (!res.ok) {
+                        throw new Error("Server Error");
+                    }
+
+                    const data = await res.json();
+
+                    if (data.duplicate) {
+
+                        result.innerHTML =
+                            "⚠ ALREADY SCANNED<br><br>" +
+                            "<b>Barcode:</b> " + decodedText + "<br>" +
+                            "<b>Name:</b> " + (data.colJ || "-") + "<br>" +
+                            "<b>Status:</b> " + (data.colO || "-");
+
+                    } else {
+
+                        result.innerHTML =
+                            "❌ NOT FOUND<br><br>" +
+                            "<b>Barcode:</b> " + decodedText;
+
+                    }
+
+                } catch (err) {
+
+                    console.error(err);
+                    result.innerHTML =
+                        "ERROR ❌<br>" + err.message;
+
+                } finally {
+
+                    isScanning = false;
+                    btn.disabled = false;
+
+                }
+
+            }
+
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        result.innerHTML =
+            "Cannot access camera.<br>Please allow camera permission.";
+
+        scanner = null;
+        btn.disabled = false;
+    }
 
 }
+
 </script>
 
 </body>
